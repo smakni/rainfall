@@ -1,0 +1,8 @@
+
+Steps:
+	>> gdb --args level0 a
+	>> b *main+25 (car il y a un cmp)
+	>> print 0x1a7 (on voit que c'est égale à 423)
+	>> on test ./level0 423
+	>> ça lance /bin/dash
+	>> cat /home/user/level1/.path

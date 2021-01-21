@@ -1,0 +1,15 @@
+
+**Binary Exploitation Series (7): Full RelRO Bypass**
+https://made0x78.com/bseries-fullrelro/
+
+
+**HACKNDO**
+https://beta.hackndo.com/introduction-a-gdb/
+https://beta.hackndo.com/assembly-basics/
+
+**GDB**
+set disassembly-flavor intel
+
+
+set  disassemble-next-line on
+show disassemble-next-line
