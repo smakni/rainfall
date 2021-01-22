@@ -14,6 +14,9 @@ https://opensecuritytraining.info/Exploits1.html
 **TutoAsm**
 https://asmtutor.com
 
+**Cours Polytech**
+https://arxiv.org/pdf/cs/0405073.pdf
+
 **GDB**
 
 set disassembly-flavor intel
@@ -63,6 +66,10 @@ h[elp] b	Documentation for setting breakpoints
 i[nfo] b	List breakpoints
 
 i	List all info commands
+
+i r shows all the registers
+
+i r eax shos reg eax
 
 dis[able] 1	Disable breakpoint 1
 
