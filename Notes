@@ -6,10 +6,88 @@ https://made0x78.com/bseries-fullrelro/
 **HACKNDO**
 https://beta.hackndo.com/introduction-a-gdb/
 https://beta.hackndo.com/assembly-basics/
+https://beta.hackndo.com/buffer-overflow/
+
+**OpenSecurityTraining**
+https://opensecuritytraining.info/Exploits1.html
+
+**TutoAsm**
+https://asmtutor.com
 
 **GDB**
-set disassembly-flavor intel
 
+set disassembly-flavor intel
 
 set  disassemble-next-line on
 show disassemble-next-line
+
+
+h[elp]	Get help on gdb commands
+
+h[elp] $ <$ cmd$ >$	Get help on a specific gdb command
+
+r[un]	Run to next breakpoint or to end
+
+s[tep]	Single-step, descending into functions
+
+n[ext]	Single-step without descending into functions
+
+fin[ish]	Finish current function, loop, etc. (useful!)
+
+c[ontinue]	Continue to next breakpoint or end
+
+up	Go up one context level on stack (to caller)
+
+do[wn]	Go down one level (only possible after up)
+
+l[ist]	Show lines of code surrounding the current point
+
+p[rint] $ <$ name$ >$	Print value of variable called $ <$ name$ >$
+
+p $ \ast<$ name$ >$	Print what is pointed to by $ <$ name$ >$
+
+p/x $ <$ name$ >$	Print value of $ <$ name$ >$ in hex format
+
+p $ <$ name$ >$ @$ <$ n$ >$	print $ <$ n$ >$ values starting at $ <$ name$ >$
+
+p $ <$ chars$ >$ $ <$ tab$ >$	List all variables starting with $ <$ chars$ >$
+
+b[reak] $ <$ name$ >$	Set a breakpoint at function $ <$ name$ >$
+
+b $ <$ class$ >$ ::$ <$ name$ >$	Set a breakpoint at $ <$ name$ >$ in $ <$ class$ >$
+
+b $ <$ class$ >$ ::$ <$ tab$ >$	List all members in $ <$ class$ >$
+
+h[elp] b	Documentation for setting breakpoints
+
+i[nfo] b	List breakpoints
+
+i	List all info commands
+
+dis[able] 1	Disable breakpoint 1
+
+en[able] 1	Enable breakpoint 1
+
+d[elete] 1	Delete breakpoint 1
+
+d 1 2	Delete breakpoints 1 and 2
+
+d	Delete all breakpoints
+
+cond[ition] 1 $ <$ expr$ >$	Stop at breakpoint 1 only if $ <$ expr$ >$ is true
+
+cond 1	Make breakpoint 1 unconditional
+
+comm[ands] 1	Add a list of gdb commands to execute
+				each time breakpoint 1 is hit
+				(usually just print <var>)
+
+
+********************************
+
+**Check if stack exectutable (protection canary)**
+>> readelf -l <exec>
+
+Registre EIP est l'adresse de la prochaine instruction
+>> instruction pointer
+

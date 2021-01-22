@@ -6,8 +6,9 @@ https://wiki.skullsecurity.org/index.php?title=Registers
 On voit que la function gets est appelé (elle est vulnérable)
 On essaye de faire un exploit avec un buffer overflow
 
-On peut tester avec python pour trouvé la taille du buffer 
+On peut tester avec python ou perl pour trouvé la taille du buffer 
 >> python -c "print 'A' * 100" | ./level1
+>> perl -e 'print "A" x 100'
 
 Pour trouver le buffer avec gdb:
 	
@@ -15,7 +16,7 @@ Pour trouver le buffer avec gdb:
 	On run
 	On lui envoie une chaine de 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA' pour remplir le buffer
 	On cherche l'adresse EIP avec {info frame} >> 0xbffff70c
-	On cherche maintenant l'adresse de debut du buffer en affichant 24 mots au début de la stack avec {x/24wx $esp} ($esp = top of the stack)
+	On cherche maintenant l'adresse du debut du buffer en affichant 24 mots au début de la stack avec {x/24wx $esp} ($esp = top of the stack)
 	On voit que la seconde ligne à l'adresse 0xbffff6c0 contient plein de 'A' (41), c'est le début du buffer
 	Dans gdb on fait la difference des 2 adresse pour obtenir la taille du buffer {p/d 0xbffff77c - 0xbffff730} = 76
 
