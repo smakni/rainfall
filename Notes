@@ -2,6 +2,18 @@
 **Binary Exploitation Series (7): Full RelRO Bypass**
 https://made0x78.com/bseries-fullrelro/
 
+**Ret2Reg attack**
+http://slayne.github.io/2016/02/17/stack7/
+https://dl.packetstormsecurity.net/papers/attack/lewt2-aslrbypass.pdf
+
+
+**Medium**
+
+**Open Security Training — Introduction to Software Exploits — Uninitialized Variable Overflow**
+https://iphelix.medium.com/open-security-training-introduction-to-software-exploits-uninitialized-variable-overflow-811a7cd75bd8
+
+**Reverse-engineering: Using Linux GDB**
+https://medium.com/@rickharris_dev/reverse-engineering-using-linux-gdb-a99611ab2d32
 
 **HACKNDO**
 https://beta.hackndo.com/introduction-a-gdb/
@@ -16,6 +28,9 @@ https://asmtutor.com
 
 **Cours Polytech**
 https://arxiv.org/pdf/cs/0405073.pdf
+
+**x86 Assembly Guide**
+https://www.cs.virginia.edu/~evans/cs216/guides/x86.html
 
 **GDB**
 http://sdz.tdct.org/sdz/deboguer-son-programme-avec-gdb.html
@@ -97,9 +112,15 @@ bt - backtrace: show stack functions and args
 info frame - show stack start/end/args/locals pointers
 x/100x $sp - show stack memory (par words: 4 bytes)
 x/20s $esp - show stack memory (par strings)
+
+l	To see source code if debuging symbol
+
+info functions - to check all functions in executable
+
 ********************************
 
 **Examining memory**
+https://web.archive.org/web/20080922034557/http://www.caf.dk/cafonly/gnu/gdb/gdb_56.html
 
 You can use the command x (for "examine") to examine memory in any of several formats, independently of your program's data types.
 
@@ -145,4 +166,6 @@ If the x command has a repeat count, the address and contents saved are from the
 
 Registre EIP est l'adresse de la prochaine instruction
 >> instruction pointer
+
+xxd -r -p | rev (cmd correction rainfall pour faire un hexa mais je ne sais plus exactement)
 

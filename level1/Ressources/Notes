@@ -1,6 +1,10 @@
+**Buffer Overflow Code execution by shellcode injection**
 https://0xrick.github.io/binary-exploitation/bof5/
 https://en.wikipedia.org/wiki/Shellcode
 https://wiki.skullsecurity.org/index.php?title=Registers
+
+cat to keep shell open
+https://unix.stackexchange.com/questions/297560/cat-into-stdin-then-pipe-into-program-keeps-forked-shell-open-why
 
 
 On voit que la function gets est appelé (elle est vulnérable)
@@ -39,3 +43,6 @@ Partie exploit, on va créer un fichier python pour lancer un shell en exploitan
 	
 python exploit.py | ./level1
 $ cat /home/user/level2/.pass
+
+adresse de run '\x44\x84\x04\x08'
+adresse du system call '\x60\x83\x04\x08'
