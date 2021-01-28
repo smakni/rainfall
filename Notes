@@ -33,10 +33,6 @@ https://arxiv.org/pdf/cs/0405073.pdf
 https://www.cs.virginia.edu/~evans/cs216/guides/x86.html
 
 **GDB**
-http://sdz.tdct.org/sdz/deboguer-son-programme-avec-gdb.html
-
-Examining memory:
-https://web.archive.org/web/20080922034557/http://www.caf.dk/cafonly/gnu/gdb/gdb_56.html
 
 set disassembly-flavor intel
 
@@ -169,3 +165,14 @@ Registre EIP est l'adresse de la prochaine instruction
 
 xxd -r -p | rev (cmd correction rainfall pour faire un hexa mais je ne sais plus exactement)
 
+https://connect.ed-diamond.com/MISC/MISC-062/La-securite-applicative-sous-Linux
+
+NX : bit 63 initialisé à 1 pour rendre la pile et le tas d'un programme non executable
+
+https://owasp.org/www-community/attacks/Format_string_attack
+
+https://csl.com.co/en/off-by-one-explained/
+
+https://owasp.org/www-community/vulnerabilities/Buffer_Overflow
+
+https://en.wikipedia.org/wiki/Heap_overflow
