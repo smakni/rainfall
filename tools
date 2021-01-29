@@ -4,7 +4,12 @@ https://www.rapidtables.com/convert/number/decimal-to-hex.html
 https://miniwebtool.com/bitwise-calculator/
 
 
-To test the source code:
+**Check if stack exectutable (protection canary)**
+>> readelf -l <exec>
+
+xxd -r -p | rev (cmd correction rainfall pour faire un hexa mais je ne sais plus exactement)
+
+**To test the source code**
 
 chmod +rw .
 touch source.c
@@ -15,3 +20,4 @@ touch compile_and_debug_source
 chmod 777 compile_and_debug_source
 echo "gcc source.c -fno-stack-protector -z execstack -o /tmp/source ; mv /tmp/source . ; gdb -q source" >  compile_and_debug_source
 
+****************************

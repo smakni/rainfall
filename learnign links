@@ -32,21 +32,13 @@ https://www.cs.virginia.edu/~evans/cs216/guides/x86.html
 **Intro ASM**
 http://www.courstechinfo.be/Programmation/IntroASM.html
 
-**BEST COURSE**
+**Modern Binary Exploitation**
 http://security.cs.rpi.edu/courses/binexp-spring2015/
+http://security.cs.rpi.edu/courses/binexp-spring2015/lectures/17/10_lecture.pdf
 
 **Medium Exploit Exercises**
 https://iphelix.medium.com/exploit-exercises-protostar-stack-levels-20185be250ad
 >> level 2 = stack 6
-
-
-**Check if stack exectutable (protection canary)**
->> readelf -l <exec>
-
-Registre EIP est l'adresse de la prochaine instruction
->> instruction pointer
-
-xxd -r -p | rev (cmd correction rainfall pour faire un hexa mais je ne sais plus exactement)
 
 https://connect.ed-diamond.com/MISC/MISC-062/La-securite-applicative-sous-Linux
 
