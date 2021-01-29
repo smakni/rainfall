@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 
+int run(){
+	
+}
+
 int main(int argc, char **argv)
 {
  	char buffer[64];

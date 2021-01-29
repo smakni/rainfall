@@ -1,0 +1,17 @@
+https://projects.jason-rush.com/tools/buffer-overflow-eip-offset-string-generator/
+https://www.scadacore.com/tools/programming-calculators/online-hex-converter/
+https://www.rapidtables.com/convert/number/decimal-to-hex.html
+https://miniwebtool.com/bitwise-calculator/
+
+
+To test the source code:
+
+chmod +rw .
+touch source.c
+chmod +rw source.c
+Use nano for text editor: nano source.c
+
+touch compile_and_debug_source
+chmod 777 compile_and_debug_source
+echo "gcc source.c -fno-stack-protector -z execstack -o /tmp/source ; mv /tmp/source . ; gdb -q source" >  compile_and_debug_source
+

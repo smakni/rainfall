@@ -1,37 +1,3 @@
-
-**Binary Exploitation Series (7): Full RelRO Bypass**
-https://made0x78.com/bseries-fullrelro/
-
-**Ret2Reg attack**
-http://slayne.github.io/2016/02/17/stack7/
-https://dl.packetstormsecurity.net/papers/attack/lewt2-aslrbypass.pdf
-
-
-**Medium**
-
-**Open Security Training — Introduction to Software Exploits — Uninitialized Variable Overflow**
-https://iphelix.medium.com/open-security-training-introduction-to-software-exploits-uninitialized-variable-overflow-811a7cd75bd8
-
-**Reverse-engineering: Using Linux GDB**
-https://medium.com/@rickharris_dev/reverse-engineering-using-linux-gdb-a99611ab2d32
-
-**HACKNDO**
-https://beta.hackndo.com/introduction-a-gdb/
-https://beta.hackndo.com/assembly-basics/
-https://beta.hackndo.com/buffer-overflow/
-
-**OpenSecurityTraining**
-https://opensecuritytraining.info/Exploits1.html
-
-**TutoAsm**
-https://asmtutor.com
-
-**Cours Polytech**
-https://arxiv.org/pdf/cs/0405073.pdf
-
-**x86 Assembly Guide**
-https://www.cs.virginia.edu/~evans/cs216/guides/x86.html
-
 **GDB**
 
 set disassembly-flavor intel
@@ -156,23 +122,3 @@ The addresses and contents printed by the x command are not saved in the value h
 If the x command has a repeat count, the address and contents saved are from the last memory unit printed; this is not the same as the last address printed if several units were printed on the last line of output.
 
 ********************************
-
-**Check if stack exectutable (protection canary)**
->> readelf -l <exec>
-
-Registre EIP est l'adresse de la prochaine instruction
->> instruction pointer
-
-xxd -r -p | rev (cmd correction rainfall pour faire un hexa mais je ne sais plus exactement)
-
-https://connect.ed-diamond.com/MISC/MISC-062/La-securite-applicative-sous-Linux
-
-NX : bit 63 initialisé à 1 pour rendre la pile et le tas d'un programme non executable
-
-https://owasp.org/www-community/attacks/Format_string_attack
-
-https://csl.com.co/en/off-by-one-explained/
-
-https://owasp.org/www-community/vulnerabilities/Buffer_Overflow
-
-https://en.wikipedia.org/wiki/Heap_overflow
