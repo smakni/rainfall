@@ -42,3 +42,20 @@ End of assembler dump.
 
 (gdb)info variables
 on trouve la variable glabal m à l'adresse 0x804988c 
+
+**Segmentation_fault**
+
+level3@RainFall:~$ ltrace ./level3
+__libc_start_main(0x804851a, 1, 0xbffff7b4, 0x8048530, 0x80485a0 <unfinished ...>
+fgets(a
+"a\n", 512, 0xb7fd1ac0)                                                 = 0xbffff500
+printf("a\n"a
+)                                                                 = 2
++++ exited (status 0) +++
+level3@RainFall:~$ ltrace ./level3
+__libc_start_main(0x804851a, 1, 0xbffff7b4, 0x8048530, 0x80485a0 <unfinished ...>
+fgets(%s
+"%s\n", 512, 0xb7fd1ac0)                                                = 0xbffff500
+printf("%s\n", "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"... <unfinished ...>
+--- SIGSEGV (Segmentation fault) ---
++++ killed by SIGSEGV +++
