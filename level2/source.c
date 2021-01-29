@@ -1,4 +1,4 @@
-http://slayne.github.io/2016/02/17/stack7/
+# http://slayne.github.io/2016/02/17/stack7/
 
 #include <stdlib.h>
 #include <unistd.h>
