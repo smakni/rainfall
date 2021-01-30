@@ -11,13 +11,20 @@ xxd -r -p | rev (cmd correction rainfall pour faire un hexa mais je ne sais plus
 
 **To test the source code**
 
-chmod +rw .
+chmod +w .
 touch source.c
-chmod +rw source.c
-Use nano for text editor: nano source.c
+chmod +w source.c
+nano source.c
 
 touch compile_and_debug_source
 chmod 777 compile_and_debug_source
 echo "gcc source.c -fno-stack-protector -z execstack -o /tmp/source ; mv /tmp/source . ; gdb -q source" >  compile_and_debug_source
 
 ****************************
+
+**To test exploit**
+
+chmod +w .
+touch exploit.py
+chmod +w exploit.py
+nano exploit.py
