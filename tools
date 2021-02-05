@@ -3,6 +3,7 @@ https://www.scadacore.com/tools/programming-calculators/online-hex-converter/
 https://www.rapidtables.com/convert/number/decimal-to-hex.html
 https://miniwebtool.com/bitwise-calculator/
 
+python -c "print 'A' * 100"
 
 **Check if stack exectutable (protection canary)**
 >> readelf -l <exec>

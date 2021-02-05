@@ -40,6 +40,25 @@ Dump of assembler code for function o:
    0x080484bd <+25>:	call   0x8048390 <_exit@plt>
 End of assembler dump.
 
+(gdb) disas printf
+Dump of assembler code for function printf:
+   0xb7e78850 <+0>:	push   ebx
+   0xb7e78851 <+1>:	sub    esp,0x18
+   0xb7e78854 <+4>:	call   0xb7f56c73
+   0xb7e78859 <+9>:	add    ebx,0x15879b
+   0xb7e7885f <+15>:	lea    eax,[esp+0x24]
+   0xb7e78863 <+19>:	mov    DWORD PTR [esp+0x8],eax
+   0xb7e78867 <+23>:	mov    eax,DWORD PTR [esp+0x20]
+   0xb7e7886b <+27>:	mov    DWORD PTR [esp+0x4],eax
+   0xb7e7886f <+31>:	mov    eax,DWORD PTR [ebx-0x7c]
+   0xb7e78875 <+37>:	mov    eax,DWORD PTR [eax]
+   0xb7e78877 <+39>:	mov    DWORD PTR [esp],eax
+   0xb7e7887a <+42>:	call   0xb7e6e6e0 <vfprintf>
+   0xb7e7887f <+47>:	add    esp,0x18
+   0xb7e78882 <+50>:	pop    ebx
+   0xb7e78883 <+51>:	ret
+End of assembler dump.
+
 (gdb) info var
 All defined variables:
 

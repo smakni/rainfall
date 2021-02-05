@@ -45,6 +45,7 @@ https://connect.ed-diamond.com/MISC/MISC-062/La-securite-applicative-sous-Linux
 NX : bit 63 initialisé à 1 pour rendre la pile et le tas d'un programme non executable
 
 https://owasp.org/www-community/attacks/Format_string_attack
+https://www.exploit-db.com/docs/english/28476-linux-format-string-exploitation.pdf
 
 https://csl.com.co/en/off-by-one-explained/
 

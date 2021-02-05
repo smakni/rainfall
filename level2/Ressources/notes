@@ -5,7 +5,7 @@ https://beta.hackndo.com/retour-a-la-libc/
 Solution:
 	1.On test avec un buffer overflow normale sur l'appel de get, eip est bien écrasé mais le programme exit si l'adresse de retour du get est dans la stack
 	2.On cherche donc une autre solution: le strdup qui prends un buffer et retour l'adresse à laquel il le copie
-	3.On cherche donc l'adresse ou il va copier notre buffer sachant le le randomize des adresse est desactiver elle sera tjr pareil
+	3.On cherche donc l'adresse ou il va copier notre buffer sachant que le randomize des adresse est desactiver elle sera tjr pareil
 	4.On lance l'exploit et bim
 
 
