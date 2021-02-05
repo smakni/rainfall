@@ -5,6 +5,8 @@ https://miniwebtool.com/bitwise-calculator/
 
 python -c "print 'A' * 100"
 
+objdump -M intel -d levelX
+
 **Check if stack exectutable (protection canary)**
 >> readelf -l <exec>
 
