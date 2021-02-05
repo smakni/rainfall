@@ -81,3 +81,12 @@ Dump of assembler code for function m:
    0x0804847a <+18>:	leave
    0x0804847b <+19>:	ret
 End of assembler dump.
+
+ltrace ./level6 a
+__libc_start_main(0x804847c, 2, 0xbffff7b4, 0x80484e0, 0x8048550 <unfinished ...>
+malloc(64)                                                                                    = 0x0804a008
+malloc(4)                                                                                     = 0x0804a050
+strcpy(0x0804a008, "a")                                                                       = 0x0804a008
+puts("Nope"Nope
+)                                                                                  = 5
++++ exited (status 5) +++
