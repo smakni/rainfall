@@ -134,3 +134,16 @@ Dump of assembler code for function m:
    0x0804851f <+43>:	leave
    0x08048520 <+44>:	ret
 End of assembler dump.
+
+level7@RainFall:~$ ltrace ./level7 a a
+__libc_start_main(0x8048521, 3, 0xbffff7b4, 0x8048610, 0x8048680 <unfinished ...>
+malloc(8)                                                                                     = 0x0804a008
+malloc(8)                                                                                     = 0x0804a018
+malloc(8)                                                                                     = 0x0804a028
+malloc(8)                                                                                     = 0x0804a038
+strcpy(0x0804a018, "a")                                                                       = 0x0804a018
+strcpy(0x0804a038, "a")                                                                       = 0x0804a038
+fopen("/home/user/level8/.pass", "r")                                                         = 0
+fgets( <unfinished ...>
+--- SIGSEGV (Segmentation fault) ---
++++ killed by SIGSEGV +++
