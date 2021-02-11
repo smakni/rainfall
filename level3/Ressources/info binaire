@@ -41,7 +41,7 @@ Dump of assembler code for function v:
 End of assembler dump.
 
 (gdb)info variables
-on trouve la variable glabal m à l'adresse 0x804988c 
+on trouve la variable globale m à l'adresse 0x804988c 
 
 **Segmentation_fault**
 

