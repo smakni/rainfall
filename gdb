@@ -122,3 +122,9 @@ The addresses and contents printed by the x command are not saved in the value h
 If the x command has a repeat count, the address and contents saved are from the last memory unit printed; this is not the same as the last address printed if several units were printed on the last line of output.
 
 ********************************
+
+(gdb) find 0x80048000, 0xc0000000, "/bin/sh" 
+
+Another way to get the memory mapping of your process is using the gdb's embedded command :
+
+(gdb) info proc map
