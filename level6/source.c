@@ -1,18 +1,23 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-void n() {
-    system("/bin/cat /home/user/level7/.pass");
+typedef void(*t_func_ptr)(void);
+
+int n() {
+    return system("/bin/cat /home/user/level7/.pass");
 }
 
-void m() {
-    puts("Nope");
+int m() {
+    return puts("Nope");
 }
 
 int main(int argc, char const *argv[]) {
-    char *buffer1 = malloc(64);
-    char *buffer2 = malloc(4);
+    char *buffer = malloc(64);
+    t_func_ptr *func;
+    func = malloc(4);
+    *func = (void *)m;
 
-    strcpy(buffer1, argv[1]);
-    return 0;
+    strcpy(buffer, argv[1]);
+    (**func)();
 }
