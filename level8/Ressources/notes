@@ -1,0 +1,1 @@
+il faut que la deuxième adresse ('service') soit au moins supérieur de 0x20 que la première adresse ('auth ') pour qu ela commande login fonctionne
