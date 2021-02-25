@@ -101,18 +101,6 @@ End of assembler dump.
 
 ***************************
 
-(gdb) r <<< $(python -c "print 'Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A'")
-Starting program: /home/user/bonus0/bonus0 <<< $(python -c "print 'Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A'")
- -
- -
-
-Program received signal SIGSEGV, Segmentation fault.
-0x080484fc in p ()
-(gdb) x/i 0x080484fc
-=> 0x80484fc <p+72>:	mov    BYTE PTR [eax],0x0
-
-***************************
-
 bonus0@RainFall:~$ ltrace ./bonus0
 __libc_start_main(0x80485a4, 1, 0xbffff7b4, 0x80485d0, 0x8048640 <unfinished ...>
 puts(" - " -
@@ -292,3 +280,17 @@ eax            0xbffff6d6	-1073744170
 (gdb) x/s 0xbffff6d6
 0xbffff6d6:	 'A' <repeats 20 times>, 'B' <repeats 19 times>, " ", 'B' <repeats 19 times>
 (gdb)
+
+au debut : eip at 0xbffff70c
+addresse du buffer
+=> (gdb) p/x $ebp -0x1008
+$4 = 0xbfffe650
+p écrit au même endroit à chaque fois
+
+eip at the end is 54 bytes after adress of main's buffer : 0xbffff6d6
+
+ecrire shellcode dans buffer du read sans qu'il soit écrasé par la deuxième chaine
+
+remplacer eip du main par addresse du shellcode
+
+=> écrire ça à buffer+54 : buffer du main (0xbffff6d6)
