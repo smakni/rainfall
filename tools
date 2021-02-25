@@ -31,3 +31,5 @@ chmod +w .
 touch exploit.py
 chmod +w exploit.py
 nano exploit.py
+
+whatis -- Print data type of expression EXP
