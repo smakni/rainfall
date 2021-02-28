@@ -1,0 +1,2 @@
+(gdb) set {char [24]} 0x080486f2 = "/home/user/bonus3/.pass"
+to be able to debug in gdb
