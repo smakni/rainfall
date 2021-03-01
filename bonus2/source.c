@@ -13,7 +13,6 @@ int language = 0;
 struct UserRecord{
 	char name[40];
 	char password[32];
-	int id;
 };
 
 void greetuser(struct UserRecord user) {
