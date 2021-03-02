@@ -5,16 +5,20 @@
 
 int main(int argc, char const *argv[])
 {
-    char buffer[66];
+    char buffer1[66];
+    char buffer2[65];
     int fd;
 
     fd = fopen("/home/user/end/.pass", "r");
     if (fd == NULL || argc != 2) {
         return 1;
     }
-    fread(buffer, 1, 66, fd);
+    fread(buffer1, 1, 66, fd);
     atoi(argv[1]);
-    fread(buffer, 1, 65, fd);
+    fread(buffer2, 1, 65, fd);
     fclose(fd);
+    if (strcmp(buffer1, buffer2)) {
+        execl("/bin/sh", "sh", NULL);
+    }
     return 0;
 }
