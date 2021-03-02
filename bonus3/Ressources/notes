@@ -1,2 +1,11 @@
+(gdb) b*main+5
+(gdb) r
 (gdb) set {char [24]} 0x080486f2 = "/home/user/bonus3/.pass"
-to be able to debug in gdb
+ou
+set {char [12]} 0x080486f2 = "/tmp/ezOpen"
+    => to be able to debug in gdb
+
+https://bases-hacking.org/aslr-nx.html => how to contourn NX enabled
+
+./bonus3 2424
+segfault when arg >= 2424
