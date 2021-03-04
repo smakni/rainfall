@@ -5,7 +5,3 @@ ou
 set {char [12]} 0x080486f2 = "/tmp/ezOpen"
     => to be able to debug in gdb
 
-https://bases-hacking.org/aslr-nx.html => how to contourn NX enabled
-
-./bonus3 2424
-segfault when arg >= 2424

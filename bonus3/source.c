@@ -7,18 +7,21 @@ int main(int argc, char const *argv[])
 {
     char buffer1[66];
     char buffer2[65];
-    int fd;
+    FILE *fd;
 
-    fd = fopen("/home/user/end/.pass", "r");
+    fd = fopen("/home/user/bonus3/.pass", "r");
+    // fd = fopen("/home/user/end/.pass", "r");
     if (fd == NULL || argc != 2) {
         return 1;
     }
     fread(buffer1, 1, 66, fd);
-    atoi(argv[1]);
+    buffer1[atoi(argv[1])] = 0;
     fread(buffer2, 1, 65, fd);
     fclose(fd);
-    if (strcmp(buffer1, buffer2)) {
+    if (strcmp(buffer1, argv[1]) == 0) {
         execl("/bin/sh", "sh", NULL);
+    } else {
+        puts("");
     }
     return 0;
 }
