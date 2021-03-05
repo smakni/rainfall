@@ -1,9 +1,0 @@
-On test pour pour si le programme segfault avec des AAAAAAA
-Oui il segfault
-
-En checkant avec gdb avec des arguments valide on voit qu'il y a un call a eax a la fin du main, eax = m
-on doit donc remplacer avec n
-
-On cherche la taille du buffer avec une offset string, on trouve 76
-
-on va donc envoyer $(python -c 'print "A" * 72 + "\x54\x84\x04\x08"') pour overwitre eip avec l'adresse de n
