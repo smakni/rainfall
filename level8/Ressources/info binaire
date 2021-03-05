@@ -117,7 +117,7 @@ Dump of assembler code for function main:
 0x080486dc <+376>:	jne    0x8048574 <main+16>                      || **fin boucle while** jump if eax != 0                                        
 0x080486e2 <+382>:	mov    eax,ds:0x8049aac                         || auth dans eax                                      
 0x080486e7 <+387>:	mov    eax,DWORD PTR [eax+0x20]                 || 0x20 = 32  segfault si auth non defini et que l'on fait login, si on ecrit login on arrive ici
-0x080486ea <+390>:	test   eax,eax                                  || cmp eax, 0
+0x080486ea <+390>:	test   eax,eax                                  || cmp eax, 0 => if (auth[32] != NULL) 
 0x080486ec <+392>:	je     0x80486ff <main+411>                     ||
 0x080486ee <+394>:	mov    DWORD PTR [esp],0x8048833                || x/s 0x8048833 => 0x8048833:	 "/bin/sh"
 0x080486f5 <+401>:	call   0x8048480 <system@plt>                   || 

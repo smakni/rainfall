@@ -1,0 +1,20 @@
+En décryptant le désassemblage du main dans gdb on repère l'équivalent de memcmp : 
+repz cmps BYTE PTR ds:[esi],BYTE PTR es:[edi]
+à 4 endroit dans le code
+Si la comparaison est bonne le bloc de code qui suit est exécuté
+On se retrouve donc avec les commandes suivantes :
+
+"auth " :
+    - assigne un malloc de 4 à auth
+    - copie dans la variable auth ce qui suit "auth " si longueur inférieure à 30
+"reset" :
+    - libère le pointeur de auth : free(auth);
+"service" :
+    - assigne à service le retour du pointeur de strdup sur ce qui suit la commande service
+"login" :
+    - compare la valeur cauth[32]
+                system("/bin/sh");
+            } else {
+                fwrite("Password:\n", 1, 10, stdout);
+            }
+        }

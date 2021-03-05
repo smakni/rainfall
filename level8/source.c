@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-char *auth;
+char *auth = "";
 char *service;
 
 int main(int argc, char const *argv[]) {
@@ -10,15 +10,15 @@ int main(int argc, char const *argv[]) {
     while (1) {
         char *str = "%p, %p \n";
         printf(str, auth, service);
-        // printf("auth:%s\n", auth);
-        // printf("auth + 16:%s\n", auth + 16);
-        // printf("auth + 32:%c\n", auth[32]);
+        printf("auth:%s\n", auth);
+        printf("auth + 16:%s\n", auth + 16);
+        printf("auth + 32:%c\n", auth[32]);
         if (fgets(buffer, 128, stdin) == NULL) {
             break ;
         }
         if (memcmp(buffer, "auth ", 5) == 0) {
             auth = malloc(4);
-            if (strlen(buffer) < 30) {
+            if (strlen(buffer + 5) < 30) {
                 strcpy(auth, buffer + 5);
             }
         }
