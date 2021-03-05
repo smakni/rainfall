@@ -29,9 +29,7 @@ Une autre particularité du formatage de printf est la possibilité de lire/écr
 
 Ici on utilisera %hn pour écrire 2 bytes, 2 fois à 2 adresses espacées de 2 bytes
 
-pour découper 16930108 en 1693 (0x69d) et 0116 (0x74).
-
-les 8 bytes manquant correspondent à l'écriture des 2 adresses.
+on découpe 0x1025544 (la valeur voulue de m) en 0x102 => 258 et 0x5544 => 21828
 
 l'adresse de m étant : 0x08049810
 

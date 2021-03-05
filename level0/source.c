@@ -10,7 +10,7 @@ int main(int argc, char const *argv[])
     int number = atoi(argv[1]);
 
     if (number == 423) {
-        char *hack[] = {"/bin/sh", NULL};
+        char *hack[] = {strdup("/bin/sh"), NULL};
         gid = getegid();
         uid = geteuid();
         setresgid(gid, gid);

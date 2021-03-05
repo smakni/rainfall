@@ -83,3 +83,7 @@ Non-debugging symbols:
 0x0804984c  completed.6159
 0x08049850  dtor_idx.6161
 0x08049854  m
+
+level5@RainFall:~$ objdump -R level5 | grep 'exit'
+08049828 R_386_JUMP_SLOT   _exit
+08049838 R_386_JUMP_SLOT   exit

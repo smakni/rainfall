@@ -1,0 +1,38 @@
+On a un fichier binaire.
+
+Testons le :
+
+level0@RainFall:~$ ./level0
+Segmentation fault (core dumped)
+level0@RainFall:~$ ./level0 a
+No !
+
+Il attend un argument.
+
+0x08048ed4 <+20>:	call   0x8049710 <atoi>
+0x08048ed9 <+25>:	cmp    eax,0x1a7
+
+Il y a un atoi sur cet argument puis une comparaison avec 0x1a7
+
+0x1a7 = 423
+
+essayons d'exécuter le binaire avec cet argument.
+
+level0@RainFall:~$ ./level0 423
+$ whoami
+level1
+$ cat /home/user/level1/.pass
+1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
+
+Il exécute un shell avec le user possédant le programme (programme suid): level1
+
+   0x08048f46 <+134>:	mov    DWORD PTR [esp+0x4],eax
+   0x08048f4a <+138>:	mov    DWORD PTR [esp],0x80c5348
+   0x08048f51 <+145>:	call   0x8054640 <execv>
+
+(gdb) x/s 0x80c5348
+0x80c5348:	 "/bin/sh"
+
+le execv lance bien un shell.
+
+Le tour est joué

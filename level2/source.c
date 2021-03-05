@@ -4,7 +4,7 @@
 
 char *p() {
     char buf[64];
-    unsigned int address;
+	void *address;
 
     fflush(stdout);
 
@@ -12,7 +12,7 @@ char *p() {
 
     address = __builtin_return_address(0);
 
-    if ((address & 0xb0000000) == 0xb0000000) {
+    if (((unsigned int)address & 0xb0000000) == 0xb0000000) {
         printf("(%p)\n", address);
         exit(1);
     }
