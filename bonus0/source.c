@@ -16,8 +16,7 @@ char *pp(char *ret) {
     p(dest1, "-");
     p(dest2, "-");
     strcpy(ret, dest1);
-    int len = strlen(dest1);
-    ret[len] = ' ';
+    ret[strlen(dest1)] = ' ';
     return (strcat(ret, dest2));
 }
 
