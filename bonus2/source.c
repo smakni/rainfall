@@ -16,7 +16,7 @@ struct UserRecord{
 };
 
 void greetuser(struct UserRecord user) {
-    char greeting[88];
+    char greeting[64];
     switch (language) {
         case LANG_FINNISH:
             strcpy(greeting, "Hyvää päivää ");
@@ -45,10 +45,10 @@ int main(int argc, char const *argv[], char **env)
 
     char *envlang = getenv("LANG");
     if (envlang) {
-        if (memcmp(envlang, "fi", 2)) {
+        if (memcmp(envlang, "fi", 2) == 0) {
             language = LANG_FINNISH;
         }
-        if (memcmp(envlang, "nl", 2)) {
+        if (memcmp(envlang, "nl", 2) == 0) {
             language = LANG_NETHERLANDER;
         }
     }

