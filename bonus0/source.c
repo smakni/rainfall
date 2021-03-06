@@ -6,23 +6,28 @@ void p(char *dest, char *hyphen) {
     char buf[4096];
     puts(hyphen);
     read(0, buf, 4096);
-    *strchr(buf, '\n') = '\0';
+    int index = strchr(buf, '\n') - buf;
+    buf[index] = '\0';
     strncpy(dest, buf, 20);
 }
 
-char *pp(char *ret) {
-    char dest1[20];
+void pp(char *ret) {
     char dest2[20];
-    p(dest1, "-");
-    p(dest2, "-");
+    char dest1[20];
+    int len;
+    p(dest1, " - ");
+    p(dest2, " - ");
     strcpy(ret, dest1);
-    ret[strlen(dest1)] = ' ';
-    return (strcat(ret, dest2));
+    len = strlen(ret);
+    ret[len] = ' ';
+    ret[len + 1] = '\0';
+    strcat(ret, dest2);
+    return;
 }
 
 int main(int argc, char const *argv[])
 {
-    char ret[48];
+    char ret[42];
     pp(ret);
     puts(ret);
     return (0);
